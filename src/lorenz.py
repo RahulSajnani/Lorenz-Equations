@@ -32,12 +32,21 @@ class Lorenz_equations:
             critical_points["p_2"] = p_2
         return critical_points
 
-    def getStabilityPoints(self, point):
+    def getStabilityPoint(self, point):
         '''
         Get the stability of critical point
         '''
-        pass
-    
+
+        Jacobian = np.array([[          -self.sigma,   self.sigma,             0], 
+                             [  self.rho - point[2],           -1,     -point[0]],
+                             [             point[1],     point[0],    -self.beta]])
+
+
+        # print(np.linalg.eig(Jacobian))
+        
+        eigenvalues, eigenvectors = np.linalg.eig(Jacobian)
+        print(eigenvalues)
+
     def getLorenzMatrix(self, x, y, z):
         '''
         Get Lorenz matrix dX/dt = AX
@@ -81,20 +90,28 @@ class Lorenz_equations:
         trajectory = self.getLorenzTrajectory(initial_point, num_points)
 
         ax = plt.figure().add_subplot(projection='3d')          
+        
+        ax.plot3D(initial_point[0], initial_point[1], initial_point[2], "ro")
         for p in critical_points:
             point = critical_points[p]
 
             if not np.iscomplex(point).any():
-                ax.scatter3D(point[0], point[1], point[2])
-
-        ax.plot3D(trajectory[:, 0], trajectory[:, 1], trajectory[:, 2])
+                self.getStabilityPoint(point)
+                ax.plot3D(point[0], point[1], point[2], "go")
+        
+        plot_steps = 100
+        for i in range(0, trajectory.shape[0], plot_steps):
+            ax.plot3D(trajectory[i: i + plot_steps + 1, 0], trajectory[i: i + plot_steps + 1, 1], trajectory[i:i + plot_steps + 1, 2], "b")
+            # if i % (num_points / 100) == 0:
+            plt.pause(0.2 /  (num_points / plot_steps))
+            # ax.plot3D()
         plt.show()
 
 
 if __name__ == "__main__":
 
-    lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 0, beta = 10/3, delta_t = 1e-2)
-    lorenz.plotLorenzTrajectory([1, 2, 0])
+    lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 25, beta = 10/3, delta_t = 1e-2)
+    lorenz.plotLorenzTrajectory([40, 0, 0])
     critical_points = lorenz.getCriticalPoints()
     print(critical_points)
         
