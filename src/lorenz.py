@@ -20,12 +20,24 @@ class Lorenz_equations:
         dX/dt = 0
         '''
         
+        critical_points = {}
         p_0 = np.array([0, 0, 0])
-        p_1 = np.array([np.sqrt(self.beta * (self.rho - 1)),  np.sqrt(self.beta * (self.rho - 1)), self.rho - 1])
-        p_2 = np.array([-np.sqrt(self.beta * (self.rho - 1)),  -np.sqrt(self.beta * (self.rho - 1)), self.rho - 1])
 
-        return {"p_0": p_0, "p_1": p_1, "p_2": p_2}
+        critical_points["p_0"] = p_0
+        if not (self.rho - 1 < 0):
+            p_1 = np.array([np.sqrt(self.beta * (self.rho - 1)),  np.sqrt(self.beta * (self.rho - 1)), self.rho - 1])
+            critical_points["p_1"] = p_1
+            
+            p_2 = np.array([-np.sqrt(self.beta * (self.rho - 1)),  -np.sqrt(self.beta * (self.rho - 1)), self.rho - 1])
+            critical_points["p_2"] = p_2
+        return critical_points
 
+    def getStabilityPoints(self, point):
+        '''
+        Get the stability of critical point
+        '''
+        pass
+    
     def getLorenzMatrix(self, x, y, z):
         '''
         Get Lorenz matrix dX/dt = AX
@@ -71,7 +83,8 @@ class Lorenz_equations:
         ax = plt.figure().add_subplot(projection='3d')          
         for p in critical_points:
             point = critical_points[p]
-            if not np.iscomplex(point).all():
+
+            if not np.iscomplex(point).any():
                 ax.scatter3D(point[0], point[1], point[2])
 
         ax.plot3D(trajectory[:, 0], trajectory[:, 1], trajectory[:, 2])
@@ -80,7 +93,7 @@ class Lorenz_equations:
 
 if __name__ == "__main__":
 
-    lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 25, beta = 10/3, delta_t = 1e-2)
+    lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 0, beta = 10/3, delta_t = 1e-2)
     lorenz.plotLorenzTrajectory([1, 2, 0])
     critical_points = lorenz.getCriticalPoints()
     print(critical_points)
