@@ -83,7 +83,7 @@ class Lorenz_equations:
                 axs[i].legend()
             i = i + 1
         
-        plt.suptitle("Pitchforck bifurcation by varying value of rho")
+        plt.suptitle("Pitchfork bifurcation by varying value of rho")
         # plt.legend()
         plt.show()
 
