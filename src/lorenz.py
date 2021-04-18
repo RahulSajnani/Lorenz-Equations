@@ -43,7 +43,7 @@ class Lorenz_equations:
         eigenvalues, eigenvectors = np.linalg.eig(Jacobian)
         return eigenvalues, eigenvectors
 
-    def plotBifurcation(self):
+    def plotBifurcation(self, max_value = 26.5):
         '''
         Plot bifurcations
         '''
@@ -52,7 +52,7 @@ class Lorenz_equations:
         critical_points_eigenvalues = {"p_0":[], "p_1":[], "p_2": []}
         rho_locations = []
         
-        rho_high = 26.5
+        rho_high = max_value
         for rho in np.linspace(0, rho_high, 1000):
             self.rho = rho
             rho_locations.append(rho)
@@ -103,6 +103,21 @@ class Lorenz_equations:
             for axis in ["eigenvalue 1", "eigenvalue 2", "eigenvalue 3"]:    
                 trajectory = np.stack(critical_points_eigenvalues[key], axis = 0)
                 ax.plot3D(rho_locations, np.real(trajectory[:, i]), np.imag(trajectory[:, i]), label = axis)
+                
+                
+                if (np.imag(trajectory[:, i]) != 0).any():
+                    
+
+                    index_rho_gt_1 = np.where( rho_locations >= 1) 
+                    # print(index_rho_gt_1)
+                    min_value = np.min(np.absolute(np.real(trajectory[index_rho_gt_1, i])))
+                    index = np.where(np.absolute(np.real(trajectory[index_rho_gt_1, i])) == min_value)
+
+                    # print(rho_locations[index_rho_gt_1][index])
+                    temp_r = rho_locations[index_rho_gt_1]
+                    print(temp_r[index[1]])
+                    # print(index)
+                    
                 ax.set_xlabel("rho")
                 ax.set_ylabel("a")   
                 ax.set_zlabel("b")   
@@ -220,13 +235,76 @@ class Lorenz_equations:
         plt.suptitle("Plot x, y, and z vs. t")
         plt.show()
 
+    def plotBifurcationTrajectories(self, initial_point, rho_list = [0.7, 1.1, 5, 10, 15, 18, 21, 24, 55]):
+        '''
+        Plot Lorenz trajectories for varying only rho and keeping the same initial point
+        '''
+
+        h = int(np.ceil(np.sqrt(len(rho_list))) // 1)
+        # print(h)
+        fig = plt.figure(constrained_layout = True)
+        rho_init = self.rho
+        
+        m = 1
+        for r in rho_list:    
+            ax = fig.add_subplot(h, h, m, projection='3d')  
+            m = m + 1
+            
+            self.rho = r
+
+            critical_points = self.getCriticalPoints()
+            for p in critical_points:
+                point = critical_points[p]
+        
+                if not np.iscomplex(point).any():
+                    eigenvalues, eigenvectors = self.getStabilityPoint(point)
+
+                    ax.plot3D(point[0], point[1], point[2], "go")
+            ax.plot3D(initial_point[0], initial_point[1], initial_point[2], "ro")
+
+            trajectory = self.getLorenzTrajectory(initial_point, num_points=3000)
+            ax.plot3D(trajectory[:, 0], trajectory[:, 1], trajectory[:, 2], label = "rho = %f" %r)
+            
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")   
+            ax.set_zlabel("z")   
+            # title = "rho = %.02f" % r
+            # ax.set_title(title)
+            ax.grid(True)
+            ax.legend()
+        
+        plt.suptitle("Varying rho and plotting Lorenz equations trajectory with initial point = (%.02f, %.02f, %.02f)" % (initial_point[0], initial_point[1], initial_point[2]))
+        # plt.legend()
+        plt.show()
+
+        self.rho = rho_init
+
 
 if __name__ == "__main__":
 
     lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 25, beta = 8/3, delta_t = 1e-2)
-    # lorenz.plotLorenzTrajectory([0, -5, -1])
-    # lorenz.plotLorenzAlongAxis([0, -5, -1])
-    lorenz.plotBifurcation()
-    # critical_points = lorenz.getCriticalPoints()
-    # print(critical_points)
+    init_point = [0, 1, 2]
+
+    # Plot Lorenztrajectory
+    lorenz.plotLorenzTrajectory(init_point)
+
+    # Plot Bifurcation trajectories
+    rho_list_1 = [0.3, 0.8, 1.4, 3]
+    lorenz.plotBifurcationTrajectories(init_point, rho_list=rho_list_1)
+
+    rho_list_2 = [5, 9, 15, 25]
+    lorenz.plotBifurcationTrajectories(init_point, rho_list=rho_list_2)
+
+    rho_list_3 = [19, 27, 32, 40]
+    lorenz.plotBifurcationTrajectories(init_point, rho_list=rho_list_3)
+    
+    # Plot Lorenz equations vs. t
+    lorenz.plotLorenzAlongAxis(init_point)
+    
+    # Plot bifurcation diagrams
+    lorenz.plotBifurcation(80)
+
+    # Get critical points
+    critical_points = lorenz.getCriticalPoints()
+    print("Printing critical points:\n", critical_points)
         
