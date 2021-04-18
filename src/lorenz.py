@@ -39,12 +39,17 @@ class Lorenz_equations:
         Jacobian = np.array([[          -self.sigma,   self.sigma,             0], 
                              [  self.rho - point[2],           -1,     -point[0]],
                              [             point[1],     point[0],    -self.beta]])
-
-
-        # print(np.linalg.eig(Jacobian))
         
         eigenvalues, eigenvectors = np.linalg.eig(Jacobian)
-        print(eigenvalues)
+        return eigenvalues, eigenvectors
+
+    def plotBifurcation(self, initial_point):
+        '''
+        Plot bifurcations
+        - 
+        '''
+        
+        pass
 
     def getLorenzMatrix(self, x, y, z):
         '''
@@ -80,14 +85,6 @@ class Lorenz_equations:
         trajectory = np.stack(trajectory, axis = 0)
 
         return trajectory
-    
-    def plotCriticalPointDirections(self, point):
-        '''
-        Point directional vectors for critical points
-        '''
-
-        pass
-
 
     def plotLorenzTrajectory(self, initial_point, num_points = 5000):
         '''
@@ -97,21 +94,27 @@ class Lorenz_equations:
         trajectory = self.getLorenzTrajectory(initial_point, num_points)
 
         ax = plt.figure().add_subplot(projection='3d')          
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        ax.set_title("Lorenz equations live plot. Init point = (%.02f, %.02f, %.02f)" % (initial_point[0], initial_point[1], initial_point[2]))
         
         ax.plot3D(initial_point[0], initial_point[1], initial_point[2], "ro")
         for p in critical_points:
             point = critical_points[p]
-
+        
             if not np.iscomplex(point).any():
-                self.getStabilityPoint(point)
+                eigenvalues, eigenvectors = self.getStabilityPoint(point)
+
                 ax.plot3D(point[0], point[1], point[2], "go")
+
+        
         
         plot_steps = 100
         for i in range(0, trajectory.shape[0], plot_steps):
             ax.plot3D(trajectory[i: i + plot_steps + 1, 0], trajectory[i: i + plot_steps + 1, 1], trajectory[i:i + plot_steps + 1, 2], "b")
-            # if i % (num_points / 100) == 0:
             plt.pause(0.2 /  (num_points / plot_steps))
-            # ax.plot3D()
+            
         plt.show()
     
     def plotLorenzAlongAxis(self, initial_point, num_points = 5000):
@@ -149,5 +152,5 @@ if __name__ == "__main__":
     lorenz.plotLorenzTrajectory([0, -5, -1])
     lorenz.plotLorenzAlongAxis([0, -5, -1])
     critical_points = lorenz.getCriticalPoints()
-    print(critical_points)
+    # print(critical_points)
         
