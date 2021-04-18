@@ -13,7 +13,6 @@ class Lorenz_equations:
         self.beta = beta
         self.delta_t = delta_t
         
-
     def getCriticalPoints(self):
         '''
         Get critical points for Lorenz equation
@@ -82,7 +81,15 @@ class Lorenz_equations:
 
         return trajectory
     
-    def plotLorenzTrajectory(self, initial_point, num_points = 10000):
+    def plotCriticalPointDirections(self, point):
+        '''
+        Point directional vectors for critical points
+        '''
+
+        pass
+
+
+    def plotLorenzTrajectory(self, initial_point, num_points = 5000):
         '''
         Plot the lorenz trajectory given initial point
         '''
@@ -106,12 +113,41 @@ class Lorenz_equations:
             plt.pause(0.2 /  (num_points / plot_steps))
             # ax.plot3D()
         plt.show()
+    
+    def plotLorenzAlongAxis(self, initial_point, num_points = 5000):
+        '''
+        plot x, y, z w.r.t t
+        '''
+        trajectory = self.getLorenzTrajectory(initial_point, num_points)
+        t = np.linspace(0, trajectory.shape[0] * self.delta_t, trajectory.shape[0]) 
+        
+        fig, axs = plt.subplots(3, 1, constrained_layout=True)
+
+        axs[0].plot(t, trajectory[:, 0], "b")
+        axs[0].set_title("x (convection) vs. t")
+        axs[0].set_xlabel("t")
+        axs[0].set_ylabel("x")
+        
+        axs[1].plot(t, trajectory[:, 1], "b")
+        axs[1].set_title("y (temperature difference (horizontal)) vs. t")
+        axs[1].set_xlabel("t")
+        axs[1].set_ylabel("y")
+        
+
+        axs[2].plot(t, trajectory[:, 2], "b")
+        axs[2].set_title("z (temperature difference (vertical)) vs. t")
+        axs[2].set_xlabel("t")
+        axs[2].set_ylabel("z")
+        
+        plt.suptitle("Plot x, y, and z vs. t")
+        plt.show()
 
 
 if __name__ == "__main__":
 
-    lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 25, beta = 10/3, delta_t = 1e-2)
-    lorenz.plotLorenzTrajectory([40, 0, 0])
+    lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 16, beta = 8/3, delta_t = 1e-2)
+    lorenz.plotLorenzTrajectory([0, -5, -1])
+    lorenz.plotLorenzAlongAxis([0, -5, -1])
     critical_points = lorenz.getCriticalPoints()
     print(critical_points)
         
