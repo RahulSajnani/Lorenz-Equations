@@ -44,7 +44,7 @@ Lorenz equations Differential Equations project. This project analyses the Loren
 
 ### Screenshots
 
-Code screenshots can be found 
+Code screenshots can be found in `screenshots` directory.
 
 
 
