@@ -43,13 +43,51 @@ class Lorenz_equations:
         eigenvalues, eigenvectors = np.linalg.eig(Jacobian)
         return eigenvalues, eigenvectors
 
-    def plotBifurcation(self, initial_point):
+    def plotBifurcation(self):
         '''
         Plot bifurcations
-        - 
         '''
+        rho_init = self.rho
+        critical_points_locations = {"p_0":[], "p_1":[], "p_2": []}
+        rho_locations = []
         
-        pass
+        rho_high = 26.5
+        for rho in np.linspace(0, rho_high, 1000):
+            self.rho = rho
+            rho_locations.append(rho)
+            critical_points_dict = self.getCriticalPoints()
+            for key in critical_points_locations:
+                if critical_points_dict.get(key) is None:
+                    critical_points_locations[key].append(np.array([0, 0, 0]))
+                else:
+                    critical_points_locations[key].append(critical_points_dict[key])
+
+        rho_locations = np.array(rho_locations)
+
+        minor_ticks = np.arange(0, rho_high // 1, 1)
+        # Plot
+        fig, axs = plt.subplots(3, 1, constrained_layout=True)
+        i = 0
+        for axis in ["x", "y", "z"]:
+            for key in critical_points_locations:
+                
+                trajectory = np.stack(critical_points_locations[key], axis = 0)
+                # print(trajectory.shape)
+                axs[i].plot(rho_locations[:trajectory.shape[0]], trajectory[:, i], label = key)
+                axs[i].set_title("%s vs. rho" % axis)
+                axs[i].set_xlabel("rho")
+                axs[i].set_ylabel(axis)   
+                axs[i].set_xticks(minor_ticks, minor = True) 
+                axs[i].grid(which='minor', alpha=0.2)
+                axs[i].grid(True)
+                axs[i].legend()
+            i = i + 1
+        
+        plt.suptitle("Pitchforck bifurcation by varying value of rho")
+        # plt.legend()
+        plt.show()
+
+        self.rho = rho_init
 
     def getLorenzMatrix(self, x, y, z):
         '''
@@ -108,8 +146,6 @@ class Lorenz_equations:
 
                 ax.plot3D(point[0], point[1], point[2], "go")
 
-        
-        
         plot_steps = 100
         for i in range(0, trajectory.shape[0], plot_steps):
             ax.plot3D(trajectory[i: i + plot_steps + 1, 0], trajectory[i: i + plot_steps + 1, 1], trajectory[i:i + plot_steps + 1, 2], "b")
@@ -123,24 +159,34 @@ class Lorenz_equations:
         '''
         trajectory = self.getLorenzTrajectory(initial_point, num_points)
         t = np.linspace(0, trajectory.shape[0] * self.delta_t, trajectory.shape[0]) 
-        
+        minor_ticks = np.arange(0, t[-1]//1, 1)
         fig, axs = plt.subplots(3, 1, constrained_layout=True)
 
         axs[0].plot(t, trajectory[:, 0], "b")
         axs[0].set_title("x (convection) vs. t")
         axs[0].set_xlabel("t")
         axs[0].set_ylabel("x")
+        axs[0].set_xticks(minor_ticks, minor = True) 
+        axs[0].grid(which='minor', alpha=0.2)
+        axs[0].grid(True)
         
         axs[1].plot(t, trajectory[:, 1], "b")
         axs[1].set_title("y (temperature difference (horizontal)) vs. t")
         axs[1].set_xlabel("t")
         axs[1].set_ylabel("y")
+        axs[1].set_xticks(minor_ticks, minor = True) 
+        axs[1].grid(which='minor', alpha=0.2)
+        axs[1].grid(True)
         
 
         axs[2].plot(t, trajectory[:, 2], "b")
         axs[2].set_title("z (temperature difference (vertical)) vs. t")
         axs[2].set_xlabel("t")
         axs[2].set_ylabel("z")
+        axs[2].set_xticks(minor_ticks, minor = True) 
+        axs[2].grid(which='minor', alpha=0.2)
+        axs[2].grid(True)
+        
         
         plt.suptitle("Plot x, y, and z vs. t")
         plt.show()
@@ -148,9 +194,10 @@ class Lorenz_equations:
 
 if __name__ == "__main__":
 
-    lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 16, beta = 8/3, delta_t = 1e-2)
+    lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 25, beta = 8/3, delta_t = 1e-2)
     lorenz.plotLorenzTrajectory([0, -5, -1])
     lorenz.plotLorenzAlongAxis([0, -5, -1])
+    lorenz.plotBifurcation()
     critical_points = lorenz.getCriticalPoints()
-    # print(critical_points)
+    print(critical_points)
         
