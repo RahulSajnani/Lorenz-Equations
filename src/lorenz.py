@@ -49,6 +49,7 @@ class Lorenz_equations:
         '''
         rho_init = self.rho
         critical_points_locations = {"p_0":[], "p_1":[], "p_2": []}
+        critical_points_eigenvalues = {"p_0":[], "p_1":[], "p_2": []}
         rho_locations = []
         
         rho_high = 26.5
@@ -59,13 +60,18 @@ class Lorenz_equations:
             for key in critical_points_locations:
                 if critical_points_dict.get(key) is None:
                     critical_points_locations[key].append(np.array([0, 0, 0]))
+                    critical_points_eigenvalues[key].append(np.array([0, 0, 0]))
                 else:
                     critical_points_locations[key].append(critical_points_dict[key])
+                    eigenvalues, eigenvectors = self.getStabilityPoint(critical_points_dict[key])
+                    # print(np.real(eigenvalues), np.imag(eigenvalues))
+                    critical_points_eigenvalues[key].append(eigenvalues)
 
         rho_locations = np.array(rho_locations)
 
         minor_ticks = np.arange(0, rho_high // 1, 1)
-        # Plot
+        
+        # Plot Pitchfork bifurcation
         fig, axs = plt.subplots(3, 1, constrained_layout=True)
         i = 0
         for axis in ["x", "y", "z"]:
@@ -84,6 +90,29 @@ class Lorenz_equations:
             i = i + 1
         
         plt.suptitle("Pitchfork bifurcation by varying value of rho")
+        plt.show()
+
+
+        fig = plt.figure(constrained_layout = True)
+        m = 1
+        # Plot Hopf bifurcation
+        for key in critical_points_locations:
+            ax = fig.add_subplot(1, 3, m, projection='3d')  
+            m = m + 1
+            i = 0
+            for axis in ["eigenvalue 1", "eigenvalue 2", "eigenvalue 3"]:    
+                trajectory = np.stack(critical_points_eigenvalues[key], axis = 0)
+                ax.plot3D(rho_locations, np.real(trajectory[:, i]), np.imag(trajectory[:, i]), label = axis)
+                ax.set_xlabel("rho")
+                ax.set_ylabel("a")   
+                ax.set_zlabel("b")   
+                title = "Eigenvalue vs. rho for %s" % key
+                ax.set_title(title)
+                ax.grid(True)
+                i = i + 1
+            ax.legend()
+        
+        plt.suptitle("Hopf bifurcation by varying value of rho. a + ib vs. rho => (a, b, rho)")
         # plt.legend()
         plt.show()
 
@@ -195,9 +224,9 @@ class Lorenz_equations:
 if __name__ == "__main__":
 
     lorenz = Lorenz_equations(prandtl_number = 10, rayleigh_number = 25, beta = 8/3, delta_t = 1e-2)
-    lorenz.plotLorenzTrajectory([0, -5, -1])
-    lorenz.plotLorenzAlongAxis([0, -5, -1])
+    # lorenz.plotLorenzTrajectory([0, -5, -1])
+    # lorenz.plotLorenzAlongAxis([0, -5, -1])
     lorenz.plotBifurcation()
-    critical_points = lorenz.getCriticalPoints()
-    print(critical_points)
+    # critical_points = lorenz.getCriticalPoints()
+    # print(critical_points)
         
