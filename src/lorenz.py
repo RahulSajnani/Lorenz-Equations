@@ -108,15 +108,12 @@ class Lorenz_equations:
                 if (np.imag(trajectory[:, i]) != 0).any():
                     
 
-                    index_rho_gt_1 = np.where( rho_locations >= 1) 
-                    # print(index_rho_gt_1)
+                    index_rho_gt_1 = np.where( rho_locations > 1) 
                     min_value = np.min(np.absolute(np.real(trajectory[index_rho_gt_1, i])))
                     index = np.where(np.absolute(np.real(trajectory[index_rho_gt_1, i])) == min_value)
 
-                    # print(rho_locations[index_rho_gt_1][index])
                     temp_r = rho_locations[index_rho_gt_1]
-                    print(temp_r[index[1]])
-                    # print(index)
+                    print("Hopf bifurcation at rho = ", temp_r[index[1]])
                     
                 ax.set_xlabel("rho")
                 ax.set_ylabel("a")   
@@ -302,7 +299,7 @@ if __name__ == "__main__":
     lorenz.plotLorenzAlongAxis(init_point)
     
     # Plot bifurcation diagrams
-    lorenz.plotBifurcation(80)
+    lorenz.plotBifurcation(35)
 
     # Get critical points
     critical_points = lorenz.getCriticalPoints()
