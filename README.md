@@ -22,7 +22,7 @@ Lorenz equations Differential Equations project. This project analyses the Loren
    python lorenz.py
    ```
 
-2. Chua's circuit chaos 3D graph
+2. Chua's circuit chaos 3D graph and 2D graph
 
    ```bash
    python chuachaos.py
